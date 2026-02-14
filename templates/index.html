@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>AI School Helper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #A2A2D0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 600px;
+            background: #FDF4E3;
+            padding: 20px;
+            border-radius: 8px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        select, textarea, button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background: #eee;
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 40px;
+        }
+        .small {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>AI School Helper</h1>
+    <p>Сервис для объяснения школьных тем с помощью ИИ</p>
+
+    <label>Класс:</label>
+    <select id="grade">
+        <option>1-4</option>
+        <option>5-7</option>
+        <option>8-9</option>
+        <option selected>10-11</option>
+    </select>
+
+    <label>Предмет:</label>
+    <select id="subject">
+        <option>Математика</option>
+        <option>Русский язык</option>
+        <option>Физика</option>
+        <option>Химия</option>
+        <option>Биология</option>
+        <option>История</option>
+        <option>Информатика</option>
+        <option>Английский язык</option>
+    </select>
+
+    <label>Объём объяснения:</label>
+    <select id="level">
+        <option>Кратко</option>
+        <option selected>Средне</option>
+        <option>Подробно</option>
+    </select>
+
+    <label>Стиль объяснения:</label>
+    <select id="style">
+        <option selected>Простым языком</option>
+        <option>Как учитель</option>
+        <option>Научно</option>
+    </select>
+
+    <label>Тема:</label>
+    <textarea id="topic" rows="4" placeholder="Например: Неправильные дроби"></textarea>
+
+    <button id="btn" onclick="sendPrompt()">Объяснить тему</button>
+    <div class="small">Подсказка: чем точнее тема, тем лучше ответ.</div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function sendPrompt() {
+    const grade = document.getElementById("grade").value;
+    const subject = document.getElementById("subject").value;
+    const level = document.getElementById("level").value;
+    const style = document.getElementById("style").value;
+    const topic = document.getElementById("topic").value;
+
+    if (!topic.trim()) {
+        alert("Введите тему");
+        return;
+    }
+
+    const btn = document.getElementById("btn");
+    const resultEl = document.getElementById("result");
+
+    btn.disabled = true;
+    resultEl.innerText = "Генерирую ответ…";
+
+    try {
+        const response = await fetch("/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                grade: grade,
+                subject: subject,
+                level: level,
+                style: style,
+                topic: topic
+            })
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+            const msg = (data && data.error) ? data.error : ("HTTP ошибка: " + response.status);
+            resultEl.innerText = "Ошибка: " + msg;
+            return;
+        }
+
+        if (data.error) {
+            resultEl.innerText = "Ошибка: " + data.error;
+        } else {
+            resultEl.innerText = data.answer || "Пустой ответ.";
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Ошибка при подключении к серверу");
+        resultEl.innerText = "Ошибка: не удалось подключиться к серверу.";
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
+
+</body>
+</html>
