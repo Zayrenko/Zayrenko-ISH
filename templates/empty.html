@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Empty — AI School Helper</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg0: "#061611",
+            bg1: "#0A241B",
+            solidBar: "rgba(6, 22, 17, 0.95)",
+            mint: "#2EE59D",
+            cyan: "#00D4FF"
+          },
+          boxShadow: {
+            soft: "0 18px 55px rgba(0,0,0,0.35)"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="min-h-screen flex flex-col text-white bg-gradient-to-b from-bg0 to-bg1 overflow-x-hidden">
+
+  <!-- TOP BAR -->
+  <header class="w-full bg-solidBar border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 select-none">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-mint to-cyan shadow-soft"></div>
+        <div class="font-extrabold tracking-wide text-lg">AI School Helper</div>
+      </a>
+
+      <div class="flex gap-3">
+        <a href="/about" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
+          О проекте
+        </a>
+        <a href="/app" class="px-4 py-2 rounded-xl bg-gradient-to-r from-mint to-cyan text-bg0 font-bold hover:opacity-95 transition">
+          Помощник
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 max-w-7xl mx-auto px-6 py-16 w-full">
+
+    <h1 class="text-4xl md:text-6xl font-black tracking-tight">
+      Раздел в разработке
+    </h1>
+
+    <p class="mt-4 text-white/75 max-w-3xl text-lg">
+      Эта вкладка создана как заготовка под будущий функционал:
+      достижения, промокоды, коллекция маскотов и персонализацию.
+    </p>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-8">
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-soft">
+        <div class="text-2xl font-black">Промокоды</div>
+        <p class="text-white/70 mt-4">
+          Введёшь специальный код — откроется новый скин маскота,
+          уникальный стиль или редкая тема оформления.
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-soft">
+        <div class="text-2xl font-black">Достижения</div>
+        <p class="text-white/70 mt-4">
+          Серия изученных тем, ежедневная активность, особые режимы —
+          всё это можно превратить в систему наград.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="mt-14">
+      <a href="/"
+         class="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition font-semibold">
+        ← Вернуться на главную
+      </a>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-solidBar border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-white/60 gap-3">
+      <div>© 2026 Mihail Zayrenko</div>
+      <div class="flex gap-5">
+        <a href="/about" class="hover:text-white transition">О проекте</a>
+        <a href="/app" class="hover:text-white transition">Помощник</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

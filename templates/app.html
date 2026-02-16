@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI School Helper — App</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg0: "#081F18",
+            bg1: "#0E2F25",
+            solidBar: "rgba(8, 31, 24, 0.92)",
+            glass: "rgba(255,255,255,0.10)",
+            stroke: "rgba(255,255,255,0.16)",
+            mint: "#2EE59D",
+            cyan: "#00D4FF",
+            pinky: "#ff5aa6"
+          },
+          boxShadow: {
+            soft: "0 18px 55px rgba(0,0,0,0.28)"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* важно: фикс select/option, чтобы текст не пропадал */
+    select, input, textarea { color: rgba(255,255,255,0.92); }
+    select option { background: #0C2A20; color: #ffffff; }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.40); }
+
+    .glass {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* лёгкий фон-паттерн */
+    .noise {
+      background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 22px 22px;
+      opacity: 0.14;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-white bg-gradient-to-b from-bg0 to-bg1 overflow-x-hidden">
+
+  <!-- фон -->
+  <div class="fixed inset-0 pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-[560px] h-[560px] rounded-full bg-mint/16 blur-[95px]"></div>
+    <div class="absolute top-0 -right-48 w-[620px] h-[620px] rounded-full bg-cyan/14 blur-[100px]"></div>
+    <div class="absolute -bottom-60 left-1/3 w-[680px] h-[680px] rounded-full bg-white/10 blur-[120px]"></div>
+    <div class="absolute inset-0 noise"></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <header class="relative z-10 w-full bg-solidBar border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 select-none">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-mint to-cyan shadow-soft"></div>
+        <div class="font-extrabold tracking-wide text-lg">AI School Helper</div>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition"
+                onclick="toast('Промокоды будут позже 🙂')">Промокод</button>
+        <button class="px-4 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition"
+                onclick="toast('Профиль/вход будет позже 🙂')">Профиль</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed right-4 bottom-4 z-50 hidden">
+    <div class="glass bg-black/55 border border-white/15 rounded-2xl px-4 py-3 shadow-soft">
+      <div class="text-sm text-white/90" id="toastText">В разработке</div>
+    </div>
+  </div>
+
+  <main class="relative z-10">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+
+      <!-- ПАРАМЕТРЫ — стеклянное меню -->
+      <section class="glass bg-glass border border-stroke rounded-3xl p-5 shadow-soft">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <div class="text-sm text-white/65 font-bold">Параметры</div>
+            <div class="text-xs text-white/55">Сначала выбери класс и предмет, потом введи тему.</div>
+          </div>
+          <div class="hidden sm:block text-xs text-white/55">
+            Совет: формулируй тему конкретно — будет точнее ответ.
+          </div>
+        </div>
+
+        <!-- row 1 -->
+        <div class="grid lg:grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs text-white/70">Класс</label>
+            <select id="grade"
+              class="mt-2 w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-3 outline-none
+                     focus:ring-4 focus:ring-mint/15">
+              <option>1-4</option>
+              <option>5-6</option>
+              <option selected>7-9</option>
+              <option>10-11</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs text-white/70">Объём</label>
+            <select id="level"
+              class="mt-2 w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-3 outline-none
+                     focus:ring-4 focus:ring-cyan/15">
+              <option>Кратко</option>
+              <option selected>Средне</option>
+              <option>Подробно</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs text-white/70">Тема</label>
+            <input id="topic" type="text" placeholder="Например: синусы, бактерии, умножение дробей…"
+              class="mt-2 w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-3 outline-none
+                     focus:ring-4 focus:ring-mint/15" />
+          </div>
+        </div>
+
+        <!-- row 2 -->
+        <div class="grid lg:grid-cols-3 gap-3 mt-3">
+          <div>
+            <label class="text-xs text-white/70">Предмет</label>
+            <select id="subject"
+              class="mt-2 w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-3 outline-none
+                     focus:ring-4 focus:ring-cyan/15">
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs text-white/70">Стиль</label>
+            <select id="style"
+              class="mt-2 w-full rounded-2xl border border-white/15 bg-white/5 px-3 py-3 outline-none
+                     focus:ring-4 focus:ring-mint/15">
+              <option selected>Простым языком</option>
+              <option>Как учитель</option>
+              <option>Научно</option>
+            </select>
+          </div>
+
+          <div class="flex items-end">
+            <button id="btn" onclick="sendPrompt()"
+              class="w-full rounded-2xl py-3 font-extrabold text-[#061611]
+                     bg-gradient-to-r from-mint/90 to-cyan/80 hover:opacity-95 transition
+                     disabled:opacity-60 shadow-soft">
+              Объяснить тему
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-3 text-xs text-white/55">
+          Дисклеймер: это помощник. Важные вещи перепроверяй.
+        </div>
+      </section>
+
+      <!-- НИЖЕ: ответ слева + маскот справа -->
+      <section class="mt-6 grid lg:grid-cols-[1fr_360px] gap-6 items-start">
+
+        <!-- ANSWER -->
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div class="font-black text-lg">Ответ</div>
+            <div id="cacheMeta" class="text-xs px-3 py-1 rounded-full border border-white/15 bg-white/5">
+              cache: ?
+            </div>
+          </div>
+
+          <pre id="result" class="whitespace-pre-wrap text-white/90 text-sm leading-relaxed min-h-[280px]">Тут появится ответ.</pre>
+        </div>
+
+        <!-- MASCOT (на фоне, без карточки) -->
+        <div class="relative min-h-[360px]">
+          <div id="glow" class="absolute inset-0 rounded-3xl bg-cyan/10 blur-[44px]"></div>
+
+          <div class="relative mx-auto w-[280px] h-[340px] opacity-95">
+            <!-- EVA-like placeholder (голова отдельно + тело отдельно) -->
+            <svg viewBox="0 0 280 340" class="w-full h-full">
+              <defs>
+                <linearGradient id="g" x1="0" x2="1">
+                  <stop offset="0" stop-color="rgba(46,229,157,0.55)"/>
+                  <stop offset="1" stop-color="rgba(0,212,255,0.45)"/>
+                </linearGradient>
+              </defs>
+
+              <!-- head -->
+              <rect x="62" y="18" rx="46" ry="46" width="156" height="116"
+                fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.20)" />
+
+              <!-- body -->
+              <rect x="48" y="160" rx="56" ry="56" width="184" height="150"
+                fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.20)" />
+
+              <!-- magnet dot -->
+              <circle cx="140" cy="148" r="7" fill="url(#g)"/>
+            </svg>
+
+            <div class="text-center text-xs text-white/60 -mt-2" id="mascotTag">default</div>
+
+            <!-- tiny pink joke (очень слабо) -->
+            <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-pinky/12 blur-[18px]"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FOOTER (сплошной, не стекло) -->
+  <footer class="relative z-10 w-full bg-solidBar border-t border-white/10 mt-10">
+    <div class="max-w-7xl mx-auto px-6 py-6 text-xs text-white/60 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+      <div>© 2026 Mihail Zayrenko</div>
+      <div class="flex gap-4">
+        <a class="hover:text-white/80 transition" href="/about">О проекте</a>
+        <a class="hover:text-white/80 transition" href="/empty">Empty</a>
+        <a class="hover:text-white/80 transition" href="/">На главную</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toast(text){
+      const t = document.getElementById('toast');
+      const tt = document.getElementById('toastText');
+      tt.textContent = text || 'В разработке';
+      t.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>t.classList.add('hidden'), 2200);
+    }
+
+    // Предметы по классу (твой список)
+    const subjectsByGrade = {
+      "1-4": ["Русский язык","Английский язык","Литературное чтение","Математика","Окружающий мир","Технология","Физическая культура","ИЗО","Музыка"],
+      "5-6": ["Русский язык","Литература","Математика","Английский язык","Биология","География","История","Обществознание","Музыка","ИЗО","Физическая культура","Технология/Труд","ОБЗР"],
+      "7-9": ["Русский язык","Литература","Алгебра","Геометрия","Английский язык","Немецкий язык","История","Обществознание","География","Биология","Физика","Химия","Информатика (ИВТ)","Музыка","ИЗО","Физическая культура","Технология/Труд","ОБЗР"],
+      "10-11": ["Русский язык","Литература","Алгебра","Геометрия","Английский язык","История","Обществознание","География","Биология","Физика","Химия","Информатика (ИВТ)","Физическая культура","ОБЗР"]
+    };
+
+    const gradeEl = document.getElementById("grade");
+    const subjectEl = document.getElementById("subject");
+    const resultEl = document.getElementById("result");
+    const btnEl = document.getElementById("btn");
+    const cacheMeta = document.getElementById("cacheMeta");
+    const mascotTag = document.getElementById("mascotTag");
+    const glow = document.getElementById("glow");
+
+    function setSubjectsForGrade(){
+      const g = gradeEl.value;
+      const subjects = subjectsByGrade[g] || [];
+      const prev = subjectEl.value;
+
+      subjectEl.innerHTML = "";
+      subjects.forEach(s=>{
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        subjectEl.appendChild(opt);
+      });
+
+      if (subjects.includes(prev)) subjectEl.value = prev;
+      updateMascot();
+    }
+
+    function updateMascot(){
+      const s = subjectEl.value || "default";
+      mascotTag.textContent = s;
+
+      // мягкая подсветка по предмету
+      let cl = "rgba(0,212,255,0.12)";
+      if (s.includes("Хим")) cl = "rgba(46,229,157,0.16)";
+      if (s.includes("Физ")) cl = "rgba(0,212,255,0.18)";
+      if (s.includes("Рус") || s.includes("Лит")) cl = "rgba(255,255,255,0.12)";
+      if (s.includes("Алг") || s.includes("Геом") || s.includes("Матем")) cl = "rgba(46,229,157,0.13)";
+      glow.style.background = cl;
+    }
+
+    gradeEl.addEventListener("change", setSubjectsForGrade);
+    subjectEl.addEventListener("change", updateMascot);
+
+    // init
+    setSubjectsForGrade();
+
+    // плавный вывод ответа
+    async function typeLines(text){
+      resultEl.textContent = "";
+      const lines = (text || "").split("\n");
+      for (let i=0;i<lines.length;i++){
+        resultEl.textContent += lines[i] + (i === lines.length-1 ? "" : "\n");
+        if (i % 3 === 0) await new Promise(r=>setTimeout(r, 10));
+      }
+    }
+
+    async function sendPrompt(){
+      const grade = gradeEl.value;
+      const subject = subjectEl.value;
+      const level = document.getElementById("level").value;
+      const style = document.getElementById("style").value;
+      const topic = document.getElementById("topic").value;
+
+      if(!topic.trim()){
+        toast("Введите тему 🙂");
+        return;
+      }
+
+      btnEl.disabled = true;
+      cacheMeta.textContent = "cache: …";
+      resultEl.textContent = "Генерирую ответ…";
+
+      try{
+        const resp = await fetch("/generate", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ grade, subject, level, style, topic })
+        });
+
+        const data = await resp.json().catch(()=>null);
+
+        if(!resp.ok){
+          const msg = (data && data.error) ? data.error : ("HTTP " + resp.status);
+          resultEl.textContent = "Ошибка: " + msg;
+          cacheMeta.textContent = "cache: ?";
+          return;
+        }
+
+        if (data && data.error){
+          resultEl.textContent = "Ошибка: " + data.error;
+          cacheMeta.textContent = "cache: ?";
+          return;
+        }
+
+        cacheMeta.textContent = (data && data.cached) ? "cache: HIT" : "cache: MISS";
+        await typeLines((data && data.answer) ? data.answer : "Пустой ответ.");
+
+      } catch(e){
+        console.error(e);
+        resultEl.textContent = "Ошибка: не удалось подключиться к серверу.";
+        cacheMeta.textContent = "cache: ?";
+      } finally{
+        btnEl.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

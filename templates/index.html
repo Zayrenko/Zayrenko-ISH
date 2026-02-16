@@ -1,161 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>AI School Helper</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #A2A2D0;
-            padding: 40px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI School Helper</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg0: "#061611",
+            bg1: "#0A241B",
+            panel: "rgba(255,255,255,0.10)",   // glass only where нужно
+            stroke: "rgba(255,255,255,0.16)",
+            solidBar: "rgba(6, 22, 17, 0.92)", // верх/низ — сплошные
+            mint: "#2EE59D",
+            cyan: "#00D4FF",
+          },
+          boxShadow: {
+            soft: "0 18px 55px rgba(0,0,0,0.35)",
+          }
         }
-        .container {
-            max-width: 600px;
-            background: #FDF4E3;
-            padding: 20px;
-            border-radius: 8px;
-            margin: auto;
-        }
-        h1 {
-            text-align: center;
-        }
-        select, textarea, button {
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        button {
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        #result {
-            margin-top: 20px;
-            white-space: pre-wrap;
-            background: #eee;
-            padding: 15px;
-            border-radius: 6px;
-            min-height: 40px;
-        }
-        .small {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 6px;
-        }
-    </style>
+      }
+    }
+  </script>
+
+  <style>
+    /* glass только для текстовых блоков */
+    .glass { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    /* аккуратный фон-паттерн */
+    .noise {
+      background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 22px 22px;
+      opacity: 0.18;
+      pointer-events:none;
+    }
+  </style>
 </head>
-<body>
 
-<div class="container">
-    <h1>AI School Helper</h1>
-    <p>Сервис для объяснения школьных тем с помощью ИИ</p>
+<body class="min-h-screen text-white bg-gradient-to-b from-bg0 to-bg1 overflow-x-hidden">
 
-    <label>Класс:</label>
-    <select id="grade">
-        <option>1-4</option>
-        <option>5-7</option>
-        <option>8-9</option>
-        <option selected>10-11</option>
-    </select>
+  <!-- фоновые пятна + паттерн -->
+  <div class="fixed inset-0 pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-mint/18 blur-[90px]"></div>
+    <div class="absolute top-0 -right-48 w-[560px] h-[560px] rounded-full bg-cyan/16 blur-[95px]"></div>
+    <div class="absolute -bottom-56 left-1/3 w-[600px] h-[600px] rounded-full bg-white/10 blur-[110px]"></div>
+    <div class="absolute inset-0 noise"></div>
+  </div>
 
-    <label>Предмет:</label>
-    <select id="subject">
-        <option>Математика</option>
-        <option>Русский язык</option>
-        <option>Физика</option>
-        <option>Химия</option>
-        <option>Биология</option>
-        <option>История</option>
-        <option>Информатика</option>
-        <option>Английский язык</option>
-    </select>
+  <!-- TOP BAR (сплошной, на всю ширину) -->
+  <header class="relative z-10 w-full bg-solidBar border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 select-none">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-mint/90 to-cyan/80 shadow-soft"></div>
+        <div class="leading-tight">
+          <div class="font-extrabold tracking-wide">AI School Helper</div>
+          <div class="text-xs text-white/65">школьные темы • понятно</div>
+        </div>
+      </a>
 
-    <label>Объём объяснения:</label>
-    <select id="level">
-        <option>Кратко</option>
-        <option selected>Средне</option>
-        <option>Подробно</option>
-    </select>
+      <nav class="flex items-center gap-2">
+        <button class="px-3 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition"
+                onclick="soon('Вход в разработке')">Войти</button>
+        <button class="px-3 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition"
+                onclick="soon('Регистрация в разработке')">Регистрация</button>
+        <button class="px-3 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition hidden sm:block"
+                onclick="soon('Тема (светлая/тёмная) появится позже')">Тема</button>
+      </nav>
+    </div>
+  </header>
 
-    <label>Стиль объяснения:</label>
-    <select id="style">
-        <option selected>Простым языком</option>
-        <option>Как учитель</option>
-        <option>Научно</option>
-    </select>
+  <!-- Toast -->
+  <div id="toast" class="fixed right-4 bottom-4 z-50 hidden">
+    <div class="bg-black/55 border border-white/15 rounded-2xl px-4 py-3 shadow-soft glass">
+      <div class="text-sm text-white/90" id="toastText">В разработке</div>
+    </div>
+  </div>
 
-    <label>Тема:</label>
-    <textarea id="topic" rows="4" placeholder="Например: Неправильные дроби"></textarea>
+  <!-- CONTENT -->
+  <main class="relative z-10">
+    <div class="max-w-7xl mx-auto px-4 py-10">
 
-    <button id="btn" onclick="sendPrompt()">Объяснить тему</button>
-    <div class="small">Подсказка: чем точнее тема, тем лучше ответ.</div>
+      <!-- (4) Центральный блок: без маскота, стекло только на тексте -->
+      <section class="text-center">
+        <h1 class="text-3xl md:text-6xl font-black leading-tight">
+          Объясняю школьные темы
+          <span class="text-mint">понятно</span> и <span class="text-cyan">быстро</span>
+        </h1>
 
-    <div id="result"></div>
-</div>
+        <!-- стекло только на описании -->
+        <div class="max-w-4xl mx-auto mt-5 glass bg-panel border border-stroke rounded-3xl px-6 py-5 shadow-soft">
+          <p class="text-white/80 text-base md:text-lg">
+            Выбирай класс, предмет и уровень — получай структурированное объяснение и блок “Проверь себя”.
+          </p>
+          <div class="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/app"
+               class="px-6 py-3 rounded-2xl font-extrabold text-bg0 bg-gradient-to-r from-mint/90 to-cyan/80 hover:opacity-95 transition shadow-soft">
+              Начать
+            </a>
+            <a href="/about"
+               class="px-6 py-3 rounded-2xl font-bold border border-white/18 bg-white/5 hover:bg-white/10 transition">
+              О проекте
+            </a>
+          </div>
+          <div class="mt-4 text-xs text-white/55">
+            Дисклеймер: сервис — помощник, а не замена учителя. Важные вещи перепроверяй.
+          </div>
+        </div>
 
-<script>
-async function sendPrompt() {
-    const grade = document.getElementById("grade").value;
-    const subject = document.getElementById("subject").value;
-    const level = document.getElementById("level").value;
-    const style = document.getElementById("style").value;
-    const topic = document.getElementById("topic").value;
+        <!-- декоративный объект, который “заходит” на текст (но не перекрывает) -->
+        <div class="relative max-w-4xl mx-auto">
+          <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-[260px] h-[90px] rounded-[999px] bg-cyan/20 blur-[30px]"></div>
+        </div>
+      </section>
 
-    if (!topic.trim()) {
-        alert("Введите тему");
-        return;
+      <!-- секции ниже (как ты описал: справа карточка, слева объект / потом наоборот) -->
+      <section class="mt-12 space-y-10">
+
+        <!-- блок 1: слева карточка, справа объект -->
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+          <div class="glass bg-panel border border-stroke rounded-3xl p-6 shadow-soft">
+            <div class="text-sm text-white/60">Раздел</div>
+            <div class="text-2xl font-black mt-1">О проекте</div>
+            <div class="text-white/75 mt-3">
+              Зачем я начал делать сервис, что он умеет сейчас, как будет развиваться дальше.
+            </div>
+            <div class="mt-4">
+              <a href="/about"
+                 class="inline-flex px-5 py-2.5 rounded-2xl font-bold border border-white/18 bg-white/5 hover:bg-white/10 transition">
+                Перейти
+              </a>
+            </div>
+          </div>
+
+          <!-- объект/картинка (без стекла) -->
+          <div class="relative h-[220px] md:h-[260px] rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-mint/15 to-cyan/10"></div>
+            <div class="absolute -bottom-10 -left-10 w-56 h-56 rounded-full bg-mint/25 blur-[45px]"></div>
+            <div class="absolute top-8 right-10 w-28 h-28 rounded-2xl bg-white/10 border border-white/15 rotate-12"></div>
+            <div class="absolute bottom-10 left-10 text-white/60 text-sm">
+              Здесь позже будет иллюстрация/скриншоты “до/после”
+            </div>
+          </div>
+        </div>
+
+        <!-- блок 2: справа карточка, слева объект -->
+        <div class="grid md:grid-cols-2 gap-6 items-center">
+          <!-- объект слева -->
+          <div class="relative h-[220px] md:h-[260px] rounded-3xl border border-white/10 bg-white/5 overflow-hidden order-2 md:order-1">
+            <div class="absolute inset-0 bg-gradient-to-br from-cyan/12 to-white/5"></div>
+            <div class="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-cyan/25 blur-[45px]"></div>
+            <div class="absolute bottom-8 left-10 w-40 h-16 rounded-[999px] bg-white/10 border border-white/15"></div>
+            <div class="absolute top-10 left-10 text-white/60 text-sm">
+              Здесь будет “какой-то объект” для стиля (иконка/арт/анимация)
+            </div>
+          </div>
+
+          <!-- карточка справа -->
+          <div class="glass bg-panel border border-stroke rounded-3xl p-6 shadow-soft order-1 md:order-2">
+            <div class="text-sm text-white/60">Раздел</div>
+            <div class="text-2xl font-black mt-1">Empty (на будущее)</div>
+            <div class="text-white/75 mt-3">
+              Это место под будущую вкладку: достижения / промокоды / коллекция маскотов.
+            </div>
+            <div class="mt-4">
+              <a href="/empty"
+                 class="inline-flex px-5 py-2.5 rounded-2xl font-bold border border-white/18 bg-white/5 hover:bg-white/10 transition">
+                Перейти
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- FOOTER (не glass, внизу страницы) -->
+  <footer class="relative z-10 w-full bg-solidBar border-t border-white/10 mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-3 gap-6 text-sm">
+        <div>
+          <div class="font-bold">Связь</div>
+          <div class="text-white/70 mt-2">Почта для багов/идей (добавишь позже)</div>
+        </div>
+        <div>
+          <div class="font-bold">FAQ</div>
+          <div class="text-white/70 mt-2">Появится позже: как формулировать тему, лимиты, точность</div>
+        </div>
+        <div>
+          <div class="font-bold">Документы</div>
+          <div class="text-white/70 mt-2">Политика / Пользовательское соглашение — позже</div>
+        </div>
+      </div>
+      <div class="mt-6 text-xs text-white/50">© 2026 Mihail Zayrenko</div>
+    </div>
+  </footer>
+
+  <script>
+    function soon(text){
+      const t = document.getElementById('toast');
+      const tt = document.getElementById('toastText');
+      tt.textContent = text || 'В разработке';
+      t.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=>t.classList.add('hidden'), 2200);
     }
-
-    const btn = document.getElementById("btn");
-    const resultEl = document.getElementById("result");
-
-    btn.disabled = true;
-    resultEl.innerText = "Генерирую ответ…";
-
-    try {
-        const response = await fetch("/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                grade: grade,
-                subject: subject,
-                level: level,
-                style: style,
-                topic: topic
-            })
-        });
-
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok) {
-            const msg = (data && data.error) ? data.error : ("HTTP ошибка: " + response.status);
-            resultEl.innerText = "Ошибка: " + msg;
-            return;
-        }
-
-        if (data.error) {
-            resultEl.innerText = "Ошибка: " + data.error;
-        } else {
-            resultEl.innerText = data.answer || "Пустой ответ.";
-        }
-
-    } catch (error) {
-        console.error(error);
-        alert("Ошибка при подключении к серверу");
-        resultEl.innerText = "Ошибка: не удалось подключиться к серверу.";
-    } finally {
-        btn.disabled = false;
-    }
-}
-</script>
-
+  </script>
 </body>
 </html>

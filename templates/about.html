@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>О проекте — AI School Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: {
+          bg0:"#061611", bg1:"#0A241B",
+          solidBar:"rgba(6, 22, 17, 0.92)",
+          mint:"#2EE59D", cyan:"#00D4FF"
+        },
+        boxShadow:{ soft:"0 18px 55px rgba(0,0,0,0.35)" }
+      }}
+    }
+  </script>
+  <style>
+    .noise{background-image:radial-gradient(rgba(255,255,255,0.05) 1px,transparent 1px);
+      background-size:22px 22px;opacity:.18;pointer-events:none}
+  </style>
+</head>
+<body class="min-h-screen text-white bg-gradient-to-b from-bg0 to-bg1 overflow-x-hidden">
+
+  <div class="fixed inset-0 pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-mint/18 blur-[90px]"></div>
+    <div class="absolute top-0 -right-48 w-[560px] h-[560px] rounded-full bg-cyan/16 blur-[95px]"></div>
+    <div class="absolute inset-0 noise"></div>
+  </div>
+
+  <!-- top bar -->
+  <header class="relative z-10 w-full bg-solidBar border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 select-none">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-mint/90 to-cyan/80 shadow-soft"></div>
+        <div class="font-extrabold tracking-wide">AI School Helper</div>
+      </a>
+      <a href="/app" class="px-4 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">
+        Перейти в помощник
+      </a>
+    </div>
+  </header>
+
+  <main class="relative z-10">
+    <div class="max-w-7xl mx-auto px-4 py-10">
+      <h1 class="text-3xl md:text-5xl font-black">О проекте</h1>
+      <p class="mt-3 text-white/75 max-w-4xl">
+        Здесь ты напишешь, зачем ты начал, почему продолжил и как проект развивается.
+        Пока это красивый каркас — потом просто заменишь тексты на свои.
+      </p>
+
+      <div class="mt-10 grid md:grid-cols-3 gap-6">
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
+          <div class="text-sm text-white/60">Идея</div>
+          <div class="text-xl font-black mt-1">Помогать учиться</div>
+          <div class="text-white/70 mt-3">
+            Сервис объясняет темы по выбранному предмету и классу, а в конце даёт “Проверь себя”.
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
+          <div class="text-sm text-white/60">Цель</div>
+          <div class="text-xl font-black mt-1">Понятно и красиво</div>
+          <div class="text-white/70 mt-3">
+            Сделать интерфейс удобным на телефоне и ПК, с хорошим дизайном и фишками.
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
+          <div class="text-sm text-white/60">Будущее</div>
+          <div class="text-xl font-black mt-1">Достижения/скины</div>
+          <div class="text-white/70 mt-3">
+            Промокоды, коллекции маскотов, история тем, экономия запросов через кэш.
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
+        <div class="text-xl font-black">С чем сталкивался</div>
+        <ul class="mt-3 text-white/75 list-disc pl-5 space-y-2">
+          <li>Подключение и стабильность API</li>
+          <li>Ограничения по токенам и длине ответа</li>
+          <li>Хостинг и деплой на Render</li>
+          <li>Дизайн и адаптивность под устройства</li>
+        </ul>
+      </div>
+
+      <div class="mt-10 flex gap-3">
+        <a href="/" class="px-5 py-3 rounded-2xl font-bold border border-white/15 bg-white/5 hover:bg-white/10 transition">На главную</a>
+        <a href="/app" class="px-5 py-3 rounded-2xl font-extrabold text-bg0 bg-gradient-to-r from-mint/90 to-cyan/80 hover:opacity-95 transition shadow-soft">Открыть помощник</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="relative z-10 w-full bg-solidBar border-t border-white/10 mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-6 text-xs text-white/55 flex items-center justify-between">
+      <div>© 2026 Mihail Zayrenko</div>
+      <div class="flex gap-4">
+        <a class="hover:text-white/80 transition" href="/empty">Empty</a>
+        <a class="hover:text-white/80 transition" href="/app">Помощник</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
